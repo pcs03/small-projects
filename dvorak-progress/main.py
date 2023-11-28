@@ -4,4 +4,5 @@ from datetime import datetime
 speeds = [
     (datetime(year=2023, month=11, day=26), 8),
     (datetime(year=2023, month=11, day=27), 10),
+    (datetime(year=2023, month=11, day=28), 11),
 ]
