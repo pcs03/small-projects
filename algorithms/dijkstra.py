@@ -1,5 +1,5 @@
-import time
 import heapq as heap
+import time
 
 
 def heuristic(pos, goal):
@@ -162,11 +162,63 @@ def dijkstra(start, goal):
                 continue
 
             if 0 <= new_position[0] < len(grid) and 0 <= new_position[1] < len(grid[0]):
-                new_cost = current_cost + \
-                    int(grid[new_position[0]][new_position[1]])
+                new_cost = current_cost + int(grid[new_position[0]][new_position[1]])
                 heap.heappush(pq, (new_cost, new_position))
 
         visited.add(current_position)
+
+
+class Node:
+    def __init__(self, state, cost, parent, heuristic = 0):
+        self.state = state
+        self.cost = cost
+        self.heuristic = heuristic
+        self.parent = parent
+
+    def __lt__(self, other):
+        return self.cost + self.heuristic < other.cost + other.heuristic
+
+    def __le__(self, other):
+        return self.cost + self.heuristic <= other.cost + other.heuristic
+
+    def __gt__(self, other):
+        return self.cost + self.heuristic > other.cost + other.heuristic
+
+    def __ge__(self, other):
+        return self.cost + self.heuristic >= other.cost + other.heuristic
+
+    def __eq__(self, other):
+        return self.cost + self.heuristic == other.cost + other.heuristic
+
+    def __ne__(self, other):
+        return self.cost + self.heuristic != other.cost + other.heuristic
+
+
+def dijkstra2(start, goal):
+    startnode = Node(start, 0, None)
+    pq = [startnode]
+    visited = set()
+
+    while pq:
+        current = heap.heappop(pq)
+
+        if current.state == goal:
+            print(f"Found goal with cost {current.cost}")
+            break
+
+        for direction in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            new_position = (
+                current.state[0] + direction[0],
+                current.state[1] + direction[1],
+            )
+
+            if new_position in visited:
+                continue
+
+            if 0 <= new_position[0] < len(grid) and 0 <= new_position[1] < len(grid[0]):
+                new_cost = current.cost + int(grid[new_position[0]][new_position[1]])
+                heap.heappush(pq, Node(new_position, new_cost, current))
+        visited.add(current.state)
 
 
 def astar(start, goal):
@@ -190,13 +242,40 @@ def astar(start, goal):
                 continue
 
             if 0 <= new_position[0] < len(grid) and 0 <= new_position[1] < len(grid[0]):
-                new_cost = current_cost + \
-                    int(grid[new_position[0]][new_position[1]])
+                new_cost = current_cost + int(grid[new_position[0]][new_position[1]])
                 heuristic_cost = heuristic(new_position, goal)
-                heap.heappush(
-                    pq, (new_cost + heuristic_cost, new_cost, new_position))
+                heap.heappush(pq, (new_cost + heuristic_cost, new_cost, new_position))
 
         visited.add(current_position)
+
+
+def astar2(start, goal):
+    startnode = Node(start, 0, None, heuristic(start, goal))
+    pq = [startnode]
+    visited = set()
+
+    while pq:
+        current = heap.heappop(pq)
+
+        if current.state == goal:
+            print(f"Found goal with cost {current.cost}")
+            break
+
+        for direction in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+            new_position = (
+                current.state[0] + direction[0],
+                current.state[1] + direction[1],
+            )
+
+            if new_position in visited:
+                continue
+
+            if 0 <= new_position[0] < len(grid) and 0 <= new_position[1] < len(grid[0]):
+                new_cost = current.cost + int(grid[new_position[0]][new_position[1]])
+                heuristic_cost = heuristic(new_position, goal)
+                heap.heappush(pq, Node(new_position, new_cost, current, heuristic_cost))
+        visited.add(current.state)
+
 
 start = (0, 0)
 goal = (len(grid) - 1, len(grid[0]) - 1)
@@ -206,5 +285,13 @@ dijkstra(start, goal)
 print(f"Dijkstra completed in {time.time() - starttime}")
 
 starttime = time.time()
+dijkstra2(start, goal)
+print(f"Dijkstra with Node class completed in {time.time() - starttime}")
+
+starttime = time.time()
 astar(start, goal)
 print(f"A* completed in {time.time() - starttime}")
+
+starttime = time.time()
+astar2(start, goal)
+print(f"A* with Node class completed in {time.time() - starttime}")
